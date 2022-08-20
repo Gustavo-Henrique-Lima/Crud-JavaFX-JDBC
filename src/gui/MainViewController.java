@@ -35,7 +35,7 @@ public class MainViewController implements Initializable{
 	@FXML
 	public void onMenuItemDepartamentoAction()
 	{
-		System.out.println("Clicou em departamento");
+		loadView("/gui/DepartamentoList.fxml");
 	}
 	@FXML
 	public void onMenuItemSobreAction()
@@ -45,7 +45,7 @@ public class MainViewController implements Initializable{
 	@FXML
 	public void onMenuItemContatoAction()
 	{
-		System.out.println("Clicou em Contato");
+		loadView("/gui/Contato.fxml");
 	}
 	@Override
 	public void initialize(URL uri, ResourceBundle rb) 
