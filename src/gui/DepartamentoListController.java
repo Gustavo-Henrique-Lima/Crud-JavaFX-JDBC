@@ -43,7 +43,8 @@ public class DepartamentoListController implements Initializable
 	public void onBtAction(ActionEvent event)
 	{
 		Stage parentStage=Utils.currentStage(event);
-		createDialogForm("/gui/DepartamentoForm.fxml",parentStage );
+		Departamento obj=new Departamento();
+		createDialogForm(obj,"/gui/DepartamentoForm.fxml",parentStage );
 	}
 	@Override
 	public void initialize(URL url, ResourceBundle rb) 
@@ -71,12 +72,15 @@ public class DepartamentoListController implements Initializable
 		obsList=FXCollections.observableArrayList(departamentos);
 		tableViewDepartamento.setItems(obsList);
 	}
-	private void createDialogForm(String absoluteName,Stage parentStage)
+	private void createDialogForm(Departamento obj,String absoluteName,Stage parentStage)
 	{
 		try
 		{
 			FXMLLoader loader=new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane=loader.load();
+			DepartamentoFormController controller=loader.getController();
+			controller.setDepartamento(obj);
+			controller.updateFormData();
 			Stage dialogStage=new Stage();
 			dialogStage.setTitle("Cadastro de departamento");
 			dialogStage.setScene(new Scene(pane));
