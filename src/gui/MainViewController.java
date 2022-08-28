@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alertas;
@@ -36,17 +37,20 @@ public class MainViewController implements Initializable{
 	@FXML
 	public void onMenuItemDepartamentoAction()
 	{
-		loadView2("/gui/DepartamentoList.fxml");
+		loadView("/gui/DepartamentoList.fxml",(DepartamentoListController controller) ->{
+		controller.setDepartamentoService(new DepartamentoService());
+		controller.carregarTableView();
+		});
 	}
 	@FXML
 	public void onMenuItemSobreAction()
 	{
-		loadView("/gui/Sobre.fxml");
+		loadView("/gui/Sobre.fxml",(x)->{});
 	}
 	@FXML
 	public void onMenuItemContatoAction()
 	{
-		loadView("/gui/Contato.fxml");
+		loadView("/gui/Contato.fxml",(x)->{});
 	}
 	@Override
 	public void initialize(URL uri, ResourceBundle rb) 
@@ -54,7 +58,7 @@ public class MainViewController implements Initializable{
 		
 		
 	}
-	private synchronized void loadView(String absoluteName) 
+	private synchronized <T> void loadView(String absoluteName,Consumer<T> acaoInicializacao) 
 	{
 		try
 		{
@@ -66,27 +70,8 @@ public class MainViewController implements Initializable{
 			mainVBox.getChildren().clear();
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
-		}
-		catch(IOException e)
-		{
-			Alertas.showAlert(null, "Erro ao carregar a página", e.getMessage(), AlertType.ERROR);
-		}
-	}
-	private synchronized void loadView2(String absoluteName) 
-	{
-		try
-		{
-			FXMLLoader loader=new FXMLLoader(getClass().getResource(absoluteName));
-			VBox newVBox=loader.load();
-			Scene mainScene=Main.getMainScene();
-			VBox mainVBox=(VBox)((ScrollPane)mainScene.getRoot()).getContent();
-			Node mainMenu=mainVBox.getChildren().get(0);
-			mainVBox.getChildren().clear();
-			mainVBox.getChildren().add(mainMenu);
-			mainVBox.getChildren().addAll(newVBox.getChildren());
-			DepartamentoListController controle=loader.getController();
-			controle.setDepartamentoService(new DepartamentoService());
-			controle.carregarTableView();
+			T controller=loader.getController();
+			acaoInicializacao.accept(controller);
 		}
 		catch(IOException e)
 		{
