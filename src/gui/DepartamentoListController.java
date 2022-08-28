@@ -80,6 +80,7 @@ public class DepartamentoListController implements Initializable
 			Pane pane=loader.load();
 			DepartamentoFormController controller=loader.getController();
 			controller.setDepartamento(obj);
+			controller.setDepartamentoService(new DepartamentoService());
 			controller.updateFormData();
 			Stage dialogStage=new Stage();
 			dialogStage.setTitle("Cadastro de departamento");
