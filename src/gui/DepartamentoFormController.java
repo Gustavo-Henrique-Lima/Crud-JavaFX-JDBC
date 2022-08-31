@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alertas;
 import gui.util.Restricoes;
 import gui.util.Utils;
@@ -20,6 +23,7 @@ import model.service.DepartamentoService;
 public class DepartamentoFormController implements Initializable{
 	private Departamento entidade;
 	private DepartamentoService service;
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
 	@FXML
 	private TextField txtId;
 	@FXML
@@ -39,6 +43,10 @@ public class DepartamentoFormController implements Initializable{
 	{
 		this.service=service;
 	}
+	public void novaAtualizacao(DataChangeListener listener)
+	{
+		dataChangeListeners.add(listener);
+	}
 	@FXML
 	public void onBtSalvarAction(ActionEvent event)
 	{
@@ -54,6 +62,7 @@ public class DepartamentoFormController implements Initializable{
 		{
 			entidade=getFormData();
 			service.saverOrUpdate(entidade);
+			notifyDataChangeListeners();
 			Utils.currentStage(event).close();
 		}
 		catch(DbException e)
@@ -61,6 +70,14 @@ public class DepartamentoFormController implements Initializable{
 			Alertas.showAlert("Erro ao cadastrar departamento", null, e.getMessage(), AlertType.ERROR);
 		}
 	} 
+	private void notifyDataChangeListeners() 
+	{
+		for(DataChangeListener listener:dataChangeListeners)
+		{
+			listener.onDataChange();
+		}
+		
+	}
 	private Departamento getFormData() {
 		Departamento obj=new Departamento();
 		obj.setId(Utils.tryParseToInt(txtId.getText()));
