@@ -1,8 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -17,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Seller;
@@ -37,7 +41,18 @@ public class SellerFormController implements Initializable{
 	private Button btSalvar;
 	@FXML
 	private Button btCancelar;
-	
+	@FXML
+	private TextField txtEmail;
+	@FXML
+	private DatePicker dpDataNascimento;
+	@FXML
+	private TextField txtSalarioBase;
+	@FXML
+	private Label labelErrorEmail;
+	@FXML
+	private Label labelErrorDataNascimento;
+	@FXML
+	private Label labelErrorSalarioBase;
 	public void setSeller(Seller entidade)
 	{
 		this.entidade=entidade;
@@ -113,7 +128,10 @@ public class SellerFormController implements Initializable{
 	private void initializeNodes()
 	{
 		Restricoes.setTextFieldInteger(txtId);
-		Restricoes.setTextFieldMaxLength(txtNome, 30);
+		Restricoes.setTextFieldMaxLength(txtNome, 70);
+		Restricoes.setTextFieldDouble(txtSalarioBase);
+		Restricoes.setTextFieldMaxLength(txtEmail, 50);
+		Utils.formatDatePicker(dpDataNascimento, "dd/MM/yyyy");
 	}
 	public void updateFormData()
 	{
@@ -123,6 +141,13 @@ public class SellerFormController implements Initializable{
 		}
 		txtId.setText(String.valueOf(entidade.getId()));
 		txtNome.setText(entidade.getName());
+		txtEmail.setText(entidade.getEmail());
+		Locale.setDefault(Locale.US);
+		txtSalarioBase.setText(String.format("%.2f", entidade.getBaseSalary()));
+		if(entidade.getBirthDate()!=null)
+		{
+			dpDataNascimento.setValue(LocalDate.ofInstant(entidade.getBirthDate().toInstant(),ZoneId.systemDefault()));
+		}
 	}
 	private void setErrorMessages(Map<String,String> erros)
 	{
