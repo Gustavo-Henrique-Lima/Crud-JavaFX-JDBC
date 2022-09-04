@@ -106,6 +106,7 @@ public class DepartamentoListController implements Initializable,DataChangeListe
 		}
 		catch(IOException e)
 		{
+			e.printStackTrace();
 			Alertas.showAlert("IO Exception", null, e.getMessage(), AlertType.ERROR);
 		}
 	}
