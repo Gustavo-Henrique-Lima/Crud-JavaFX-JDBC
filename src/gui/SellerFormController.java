@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -64,74 +66,109 @@ public class SellerFormController implements Initializable {
 	private Label labelErrorDataNascimento;
 	@FXML
 	private Label labelErrorSalarioBase;
-
 	private ObservableList<Departamento> obsList;
 
-	public void setSeller(Seller entidade) {
+	public void setSeller(Seller entidade) 
+	{
 		this.entidade = entidade;
 	}
 
-	public void setServices(SellerService service, DepartamentoService ds) {
+	public void setServices(SellerService service, DepartamentoService ds) 
+	{
 		this.service = service;
 		this.departamentService = ds;
 	}
 
-	public void novaAtualizacao(DataChangeListener listener) {
+	public void novaAtualizacao(DataChangeListener listener) 
+	{
 		dataChangeListeners.add(listener);
 	}
 
 	@FXML
-	public void onBtSalvarAction(ActionEvent event) {
-		if (entidade == null) {
+	public void onBtSalvarAction(ActionEvent event) 
+	{
+		if (entidade == null) 
+		{
 			throw new IllegalStateException("Entidade é nula");
 		}
-		if (service == null) {
+		if (service == null) 
+		{
 			throw new IllegalStateException("Serviço é nulo");
 		}
-		try {
+		try 
+		{
 			entidade = getFormData();
 			service.saverOrUpdate(entidade);
 			notifyDataChangeListeners();
 			Utils.currentStage(event).close();
-		} catch (ValidationException e) {
+		} catch (ValidationException e) 
+		{
 			setErrorMessages(e.getErros());
-		} catch (DbException e) {
+		} catch (DbException e) 
+		{
 			Alertas.showAlert("Erro ao cadastrar departamento", null, e.getMessage(), AlertType.ERROR);
 		}
 	}
 
-	private void notifyDataChangeListeners() {
-		for (DataChangeListener listener : dataChangeListeners) {
+	private void notifyDataChangeListeners() 
+	{
+		for (DataChangeListener listener : dataChangeListeners) 
+		{
 			listener.onDataChange();
 		}
-
 	}
 
-	private Seller getFormData() {
+	private Seller getFormData() 
+	{
 		ValidationException excecao = new ValidationException("Erro ao preencher os dados");
 		Seller obj = new Seller();
 		obj.setId(Utils.tryParseToInt(txtId.getText()));
-		if (txtNome.getText() == null || txtNome.getText().trim().equals("")) {
+		if (txtNome.getText() == null || txtNome.getText().trim().equals("")) 
+		{
 			excecao.addErro("nome", "O campo NOME não pode ser vazio");
 		}
 		obj.setName(txtNome.getText());
-		if (excecao.getErros().size() > 0) {
+		if (txtEmail.getText() == null || txtEmail.getText().trim().equals("")) 
+		{
+			excecao.addErro("email", "O campo EMAIL não pode ser vazio");
+		}
+		obj.setEmail(txtEmail.getText());
+		if(dpDataNascimento.getValue()==null)
+		{
+			excecao.addErro("dataNascimento", "O campo DATA DE NASCIMENTO não pode ser vazio");
+		}
+		else
+		{
+			Instant instant= Instant.from(dpDataNascimento.getValue().atStartOfDay(ZoneId.systemDefault()));
+			obj.setBirthDate(Date.from(instant));
+		}
+		if (txtSalarioBase.getText() == null || txtSalarioBase.getText().trim().equals(""))
+		{
+			excecao.addErro("salarioBase", "O campo SALÁRIO não pode ser vazio");
+		}
+		obj.setBaseSalary(Utils.tryParseToDouble(txtSalarioBase.getText()));
+		obj.setDepartment(comboBoxDepartment.getValue());
+		if (excecao.getErros().size() > 0) 
+		{
 			throw excecao;
 		}
 		return obj;
 	}
 
 	@FXML
-	public void onBtCancelarAction(ActionEvent event) {
+	public void onBtCancelarAction(ActionEvent event) 
+	{
 		Utils.currentStage(event).close();
 	}
 
 	@Override
-	public void initialize(URL url, ResourceBundle rb) {
+	public void initialize(URL url, ResourceBundle rb) 
+	{
 		initializeNodes();
 	}
 
-	private void initializeNodes() {
+	private void initializeNodes() 
+	{
 		Restricoes.setTextFieldInteger(txtId);
 		Restricoes.setTextFieldMaxLength(txtNome, 70);
 		Restricoes.setTextFieldDouble(txtSalarioBase);
@@ -140,8 +177,10 @@ public class SellerFormController implements Initializable {
 		initializeComboBoxDepartamento();
 	}
 
-	public void updateFormData() {
-		if (entidade == null) {
+	public void updateFormData() 
+	{
+		if (entidade == null) 
+		{
 			throw new IllegalStateException("Seller é nulo");
 		}
 		txtId.setText(String.valueOf(entidade.getId()));
@@ -163,15 +202,19 @@ public class SellerFormController implements Initializable {
 		}
 	}
 
-	private void setErrorMessages(Map<String, String> erros) {
+	private void setErrorMessages(Map<String, String> erros) 
+	{
 		Set<String> campos = erros.keySet();
-		if (campos.contains("nome")) {
-			labelErrorName.setText(erros.get("nome"));
-		}
+		labelErrorName.setText((campos.contains("nome") ? erros.get("nome"): ""));
+		labelErrorEmail.setText((campos.contains("email") ? erros.get("email"): ""));
+		labelErrorSalarioBase.setText((campos.contains("salarioBase") ? erros.get("salarioBase") : ""));
+		labelErrorDataNascimento.setText((campos.contains("dataNascimento") ? erros.get("dataNascimento") : ""));
 	}
 
-	public void carregarDepartamentos() {
-		if (departamentService == null) {
+	public void carregarDepartamentos() 
+	{
+		if (departamentService == null) 
+		{
 			throw new IllegalStateException("Departamento service é nulo");
 		}
 		List<Departamento> list = departamentService.findAll();
@@ -185,7 +228,7 @@ public class SellerFormController implements Initializable {
 		{
 			@Override
 			protected void updateItem(Departamento item, boolean empty) 
-				{
+			{
 				super.updateItem(item, empty);
 				setText(empty ? "" : item.getNome());
 			}
@@ -193,5 +236,4 @@ public class SellerFormController implements Initializable {
 		comboBoxDepartment.setCellFactory(factory);
 		comboBoxDepartment.setButtonCell(factory.call(null));
 	}
-
 }
